@@ -20,10 +20,27 @@ public class NewBehaviourScript : MonoBehaviour
 
     private void HandleMovement()
     {
-        float moveX = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        float moveZ = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+        float currentMoveSpeed = moveSpeed;
 
-        transform.Translate(new Vector3(moveX, 0, moveZ), Space.Self);
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+        {
+            currentMoveSpeed /= 5f; // Замедление в 5 раз при нажатии Ctrl
+        }
+
+        float moveX = Input.GetAxis("Horizontal") * currentMoveSpeed * Time.deltaTime;
+        float moveZ = Input.GetAxis("Vertical") * currentMoveSpeed * Time.deltaTime;
+        float moveY = 0f;
+
+        if (Input.GetKey(KeyCode.Space)) // Подъем вверх при нажатии пробела
+        {
+            moveY = currentMoveSpeed / 8 * Time.deltaTime;
+        }
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) // Спуск вниз при нажатии Shift
+        {
+            moveY = -currentMoveSpeed / 8 * Time.deltaTime;
+        }
+
+        transform.Translate(new Vector3(moveX, moveY, moveZ), Space.Self);
     }
 
     private void HandleRotation()
@@ -37,10 +54,7 @@ public class NewBehaviourScript : MonoBehaviour
             rotationY += rotY;
             rotationY = Mathf.Clamp(rotationY, -90f, 90f); // Ограничение угла по оси Y
 
-            Quaternion xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
-            Quaternion yQuaternion = Quaternion.AngleAxis(rotationY, Vector3.right);
-
-            transform.localRotation = Quaternion.identity * xQuaternion * yQuaternion;
+            transform.eulerAngles = new Vector3(rotationY, rotationX, 0f);
         }
     }
 
